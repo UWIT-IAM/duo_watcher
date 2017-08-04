@@ -1,0 +1,8 @@
+{
+  "addr":	"",
+  "port":	2681,
+  "rundir":	"/data/logs/duo",
+  "nundir":	"/usr/lusers/ken/duo_logs",
+  "logfile":	"log",
+  "pidfile":	"pid"
+}
