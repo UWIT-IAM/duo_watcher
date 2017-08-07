@@ -6,6 +6,7 @@ import duo_client
 import json
 import errno
 import time
+import sys
 import os
 
 
@@ -35,10 +36,12 @@ class LogWatcher:
             else:
                 print('Unable to load {file}: {msg}'.format(
                     file = os.path.realpath(name + '/state'), msg = msg))
+                sys.stdout.flush()
                 raise
         except Exception as msg:
             print('Unable to load {file}: {msg}'.format(
                 file = os.path.realpath(name + '/state'), msg = msg))
+            sys.stdout.flush()
             raise
 
     def fetch(self):
@@ -60,6 +63,7 @@ class LogWatcher:
                         pid = os.getpid(),
                         bo = self.backoff,
                         name = self.name))
+                    sys.stdout.flush()
                 return False
             raise
         else:
@@ -81,6 +85,7 @@ class LogWatcher:
                         ts = time.strftime('%y-%m-%d %H:%M:%S'),
                         pid = os.getpid(),
                         file = os.path.realpath(fname)))
+                    sys.stdout.flush()
                 json.dump(row, self.logfp)
                 self.logfp.write('\n')
                 self.state['timestamp'] = timestamp + 1

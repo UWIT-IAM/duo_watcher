@@ -4,7 +4,9 @@ Collect: Collect Duo logs
 """
 
 import argparse
+import os
 import re
+import sys
 import time
 import traceback
 from threading import Thread, Event
@@ -18,6 +20,12 @@ def looper(tp):
     """
     Thread to loop forever scarfing up Duo log messages, yum, yum
     """
+    print('{ts} {pid}: Thread {name} starting.'.format(
+        ts = time.strftime('%y-%m-%d %H:%M:%S'),
+        pid = os.getpid(),
+        name = tp.name))
+    sys.stdout.flush()
+
     while not tp.terminate.isSet():
         while not tp.terminate.isSet():
             tp.timestamp = time.time()
@@ -33,17 +41,23 @@ def looper(tp):
         tp.terminate.wait(tp.interval + tp.handle.backoff)
         if tp.maxcount > 0 and tp.count > tp.maxcount:
             break
+
     tp.status = 'Stopped ' + tp.status
-    print('Thread for {name} terminating...'.format(name = tp.name))
+
+    print('{ts} {pid}: Thread {name} terminating.'.format(
+        ts = time.strftime('%y-%m-%d %H:%M:%S'),
+        pid = os.getpid(),
+        name = tp.name))
+    sys.stdout.flush()
 
 #
 #  Initialize our thread descriptions
 #
 
 threads = [
-    argus_daemon.Argus_thread('auth', 'authentication', auto = False, target = looper),
-    argus_daemon.Argus_thread('admin', 'administrator', auto = False, target = looper),
-    argus_daemon.Argus_thread('phone', 'telephony', auto = False, target = looper)
+    argus_daemon.Argus_thread('auth', 'authentication', auto = True, target = looper),
+    argus_daemon.Argus_thread('admin', 'administrator', auto = True, target = looper),
+    argus_daemon.Argus_thread('phone', 'telephony', auto = True, target = looper)
 ]
 
 #
@@ -61,6 +75,11 @@ def main():
     if arg.d:
         argus.deamonize()
 
+    print('{ts} {pid}: Duo collection daemon starting...'.format(
+        ts = time.strftime('%y-%m-%d %H:%M:%S'),
+        pid = os.getpid()))
+    sys.stdout.flush()
+
     for tp in threads:
         tp.handle = duo_watcher.LogWatcher(tp.name, tp.resource)
         if tp.auto:
@@ -69,7 +88,7 @@ def main():
                 tp.thread.start()
             except Exception as errtxt:
                 tp.alert = 8
-                tp.status = '{msg}'.format(msg=errtxt)
+                tp.status = errtxt
             else:
                 tp.active = True
 
@@ -115,6 +134,7 @@ def main():
     #
 
     print('Exiting main loop.')
+    sys.stdout.flush()
 
     for tp in threads:
         if tp.active:
@@ -123,6 +143,7 @@ def main():
     for tp in threads:
         if tp.active:
             print('Joining thread for {name}'.format(name = tp.name))
+            sys.stdout.flush()
             tp.thread.join(10.0)
         tp.active = False
         tp.thread = None

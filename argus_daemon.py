@@ -109,6 +109,7 @@ class Argus:
             ts = time.strftime('%y-%m-%d %H:%M:%S'),
             pid = os.getpid(),
             port = self.port))
+        sys.stdout.flush()
 
     def deamonize(self):
         """
@@ -194,6 +195,7 @@ class Argus:
                 alert = self.alert
                 status = self.status
                 res_threads = ''
+                restart = None
                 for tp in self.threads:
                     if not tp.active:
                         res_threads = res_threads + '{name}: Idle\n'.format(name = tp.name)
@@ -201,14 +203,55 @@ class Argus:
                     res_threads = res_threads + '{name}: {status}\n'.format(name = tp.name, status = tp.status)
                     if alert < tp.alert:
                         alert = tp.alert
-                    if alert == 0:
+                    if alert < 6:
                         if time.time() > tp.timestamp + 4 * tp.interval:
                             alert = 5
                             status = 'Dead thread: {name}'.format(name = tp.name)
+                            if tp.auto:
+                                alert = 6
+                                restart = tp
+                            else:
+                                alert = 5
 
                 response = res_fmt.format(seq = self.seq, alert = alert, status = status, threads = res_threads)
 
                 self.sock.sendto(response, self.addr)
+
+                # Should we attempt to auto restart a dead thread??
+
+                if restart:
+                    restart.terminate.set()
+                    restart.thread.join(10.0)
+                    if restart.thread.isAlive():
+                        print('{ts} {pid}: Unable to terminate {name} thread.'.format(
+                            ts = time.strftime('%y-%m-%d %H:%M:%S'),
+                            pid = os.getpid(),
+                            name = restart.name))
+                        sys.stdout.flush()
+                        restart.auto = False
+                    else:
+                        restart.active = False
+                        restart.thread = None
+                        restart.terminate.clear()
+                        restart.count = 0
+                        try:
+                            restart.thread = Thread(target=restart.target, args=(restart,))
+                            restart.thread.start()
+                        except Exception as errtxt:
+                            print('{ts} {pid}: Unable to restart {name}: {msg}'.format(
+                                ts = time.strftime('%y-%m-%d %H:%M:%S'),
+                                pid = os.getpid(),
+                                name = restart.name,
+                                msg = errtxt))
+                            sys.stdout.flush()
+                        else:
+                            print('{ts} {pid}: Restarted {name} thread.'.format(
+                                ts = time.strftime('%y-%m-%d %H:%M:%S'),
+                                pid = os.getpid(),
+                                name = restart.name))
+                            sys.stdout.flush()
+                            restart.active = True
+
                 continue
 
             # Other requests need to come from our localhost.
@@ -265,6 +308,7 @@ class Argus:
             ts = time.strftime('%y-%m-%d %H:%M:%S'),
             pid = os.getpid(),
             signum = signum))
+        sys.stdout.flush()
 
         self.terminate = True
 
@@ -281,9 +325,6 @@ class Argus:
             if m.group(1) == tp.name:
                 if m.group(2) == 'terminate' or m.group(2) == 'stop':
                     tp.terminate.set()
-                    while tp.thread.isAlive():
-                        print('Attempting to join thread for {name}'.format(name = tp.name))
-                        tp.thread.join(3.0)
                     tp.thread.join(10.0)
                     if tp.thread.isAlive():
                         answer = 'P5Thread {name} could not be joined'.format(name = tp.name)

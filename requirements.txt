@@ -1,0 +1,3 @@
+duo_client
+pytest
+pytest-pep8
