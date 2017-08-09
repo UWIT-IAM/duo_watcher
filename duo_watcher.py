@@ -32,7 +32,7 @@ class LogWatcher:
                 self.state = json.load(fp)
         except IOError as e:
             if e.errno == errno.ENOENT:
-                self.state = {'timestamp': 0}
+                self.state = {'timestamp': 0, 'count': 0}
             else:
                 print('Unable to load {file}: {msg}'.format(
                     file = os.path.realpath(name + '/state'), msg = msg))
@@ -47,7 +47,7 @@ class LogWatcher:
     def fetch(self):
         try:
             params = {
-                'mintime': str(self.state['timestamp'])
+                'mintime': str(self.state.get('timestamp', 0))
             }
             response = admin_api.json_api_call(
                 'GET',
@@ -69,10 +69,17 @@ class LogWatcher:
         else:
             self.backoff = self.backoff / 2
 
+        prev_ts = -1
         newRow = False
         for row in response:
             timestamp = row.get('timestamp', 0)
-            if timestamp >= self.state['timestamp']:
+            if timestamp == prev_ts:
+                count = count + 1
+            else:
+                prev_ts = timestamp
+                count = 1
+            if (timestamp > self.state.get('timestamp', 0) or
+                    (timestamp == self.state.get('timestamp', 0) and count > self.state.get('count', 0))):
                 tm = time.localtime(timestamp)
                 fname = time.strftime(self.name + '/%y%m%d', tm)
                 if self.logname and self.logname != fname:
@@ -88,7 +95,8 @@ class LogWatcher:
                     sys.stdout.flush()
                 json.dump(row, self.logfp)
                 self.logfp.write('\n')
-                self.state['timestamp'] = timestamp + 1
+                self.state['timestamp'] = timestamp
+                self.state['count'] = count
                 newRow = True
 
         if newRow:
