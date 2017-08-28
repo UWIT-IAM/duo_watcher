@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+#  Set up our environment and start the collector
+#	(as from 'service duo_watcher start')
+#
+
+bindir=`echo ~/duo_*/start | sed s=/start==`
+
+cd ${bindir} || exit 1
+
+if [ -d v ]; then
+  . v/bin/activate
+elif [ -d venv ]; then
+  . venv/bin/activate
+else
+  echo "Cannot find python virtualenv directory." 1>&2
+  exit 1
+fi
+
+./collect.py -d
+
+exit $?

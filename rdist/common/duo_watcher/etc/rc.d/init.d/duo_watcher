@@ -1,0 +1,61 @@
+#!/bin/bash
+#
+#  duo_watcher service control
+#
+
+. /etc/init.d/functions
+
+PATH=/usr/local/bin:$PATH
+
+user=${2:-iamduo}
+homedir=${3:-`cpw -h $user`/duo_watcher}
+
+[ -f $homedir/start ] || exit 0
+[ -f /etc/daemons/no-duo_watcher ] && exit 1
+
+RETVAL=0
+
+start() {
+	echo -n $"Starting duo_watcher: "
+	touch /var/lock/subsys/duo_watcher
+	su $user $homedir/start
+	echo ""
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Shutting down duo_watcher: "
+	if [ -f /data/logs/duo/pid ]; then
+		kill -TERM `cat /data/logs/duo/pid`
+		rm -f /data/logs/duo/pid
+		echo ""
+		return $RETVAL
+	else
+		echo "Not running"
+		RETVAL=1
+		return $RETVAL
+	fi
+}
+
+restart() {
+	stop
+	start
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart|reload)
+	restart
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
+

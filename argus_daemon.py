@@ -154,7 +154,11 @@ class Argus:
         """
         Internal routine to clean up our pidfile on daemon termination
         """
-        os.remove(self.pidfile)
+        try:
+            os.remove(self.pidfile)
+        except OSError as e:
+            if e.errno != errno.ENOENT:
+                raise
 
     def getMessage(self):
         """
