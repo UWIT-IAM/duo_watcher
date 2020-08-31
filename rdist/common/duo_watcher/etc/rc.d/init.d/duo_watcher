@@ -12,7 +12,7 @@ PATH=/usr/local/bin:$PATH
 user=${2:-iamduo}
 homedir=${3:-`cpw -h $user`/duo_watcher}
 
-[ -f $homedir/start ] || exit 0
+[ -f $homedir/start -a -d /data/logs/duo ] || exit 0
 [ -f /etc/daemons/no-duo_watcher ] && exit 1
 
 RETVAL=0
