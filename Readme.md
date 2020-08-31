@@ -39,7 +39,10 @@ If anything changed within ./rdist, do:
    # As superuser on ref:
    rm -r /rdist/common/duo_watcher
    ssh ${loggerN} '(cd ~iamduo/duo_watcher/rdist/common; tar --owner=0 --group=0 -cf - duo_watcher)' | (cd /rdist/common/; tar -xvf -)
-   push /rdist/common/duo_watcher ${loggerN} | sh
+   clone ${loggerN} update
+
+   # Or, iff ~ken/.bin/ is in your path:
+   push /rdist/common/duo_watcher/ ${loggerN} | sh
 ```
 
 You'll need to be superuser to create the archive directory for the logs.  You can do that from ref or
