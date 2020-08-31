@@ -1,9 +1,0 @@
-We need to create a virtual environment "v" or "venv".
-
-Then:
-   pip install -U -r requirements.txt
-
-Also, if anything changes within ./rdist, do:
-   
-   #ref> rm -r /rdist/common/duo_watcher
-   #ref> ssh logger3 '(cd ~iamduo/duo_watcher/rdist/common; tar --owner=0 --group=0 -cf - duo_watcher)' | (cd /rdist/common/; tar -xvf -)

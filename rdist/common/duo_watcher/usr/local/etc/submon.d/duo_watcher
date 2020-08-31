@@ -1,0 +1,23 @@
+#Bldmake
+#  NB: Source for this file is in https://github.com/UWIT-IAM/duo_watcher
+{
+    "duo_watcher": {
+        "ci": {
+            "organization": "UW-IT",
+            "name": "Token Authentication",
+            "sysid": "d78f90ba6fbc6500ab448bec5d3ee492"
+        },
+#       Argus Level:    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+        "severities": [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 1, 1 ],
+        "levelMinAlert": 8,
+        "ignore": false,
+        "development": {
+#           Argus Level:    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+            "severities": [ 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2 ],
+            "ignore": true
+        },
+        "component": { "name": "duo_watcher" },
+        "server": "localhost",
+        "port": 2681
+    }
+}

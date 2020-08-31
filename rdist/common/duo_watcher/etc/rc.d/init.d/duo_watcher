@@ -2,6 +2,8 @@
 #
 #  duo_watcher service control
 #
+#  NB: Source for this file is in https://github.com/UWIT-IAM/duo_watcher
+#
 
 . /etc/init.d/functions
 
@@ -58,4 +60,3 @@ case "$1" in
 esac
 
 exit $?
-
