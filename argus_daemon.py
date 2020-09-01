@@ -169,16 +169,16 @@ class Argus:
 
         while not self.terminate:
             try:
-                line, self.addr = self.sock.recvfrom(1024)
+                bytes, self.addr = self.sock.recvfrom(1024)
             except IOError as e:
                 if e.errno == errno.EINTR:
                     continue
                 raise
 
-            if not line:
+            if not bytes:
                 continue
 
-            cmd = getSeq.match(line)
+            cmd = getSeq.match(bytes.decode("utf-8"))
 
             self.seq = cmd.group(1)
             self.msg = cmd.group(2)
@@ -218,8 +218,8 @@ class Argus:
                                 alert = 5
 
                 response = res_fmt.format(seq = self.seq, alert = alert, status = status, threads = res_threads)
-
-                self.sock.sendto(response, self.addr)
+		packet = response.encode("utf-8")
+                self.sock.sendto(packet, self.addr)
 
                 # Should we attempt to auto restart a dead thread??
 
@@ -280,7 +280,9 @@ class Argus:
                 print(fmt.format(ts = time.strftime('%y-%m-%d %H:%M:%S'), pid = os.getpid(), port = self.port))
                 sys.stdout.flush()
 
-                self.sock.sendto('{seq}P0Okay\n'.format(seq = self.seq), self.addr)
+		response = '{seq}P0Okay\n'.format(seq = self.seq)
+		packet = response.encode("utf-8")
+                self.sock.sendto(packet, self.addr)
                 continue
 
             print('{ts} {pid}: Incoming {msg}'.format(ts = time.strftime('%y-%m-%d %H:%M:%S'), pid = os.getpid(), msg = self.msg))
@@ -297,7 +299,9 @@ class Argus:
         """
         Sends a response back to the source of the most recent query
         """
-        self.sock.sendto('{seq}{message}\n'.format(seq = self.seq, message = message), self.addr)
+        response = '{seq}{message}\n'.format(seq = self.seq, message = message)
+	packet = response.encode("utf-8")
+        self.sock.sendto(packet, self.addr)
         print('{ts} {pid}: Response {msg}'.format(
             ts = time.strftime('%y-%m-%d %H:%M:%S'),
             pid = os.getpid(),
