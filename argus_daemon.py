@@ -96,8 +96,8 @@ class Argus:
 
         try:
             self.sock.bind((cf.get('addr', ''), self.port))
-        except socket.error, msg:
-            sys.stderr.write('Unable to bind to UDP port {port}: {msg}\n'.format(port = self.port, msg = msg))
+        except socket.error as e:
+            sys.stderr.write('Unable to bind to UDP port {port}: {msg}\n'.format(port = self.port, msg = e.strerror))
             sys.exit(1)
 
         signal.signal(signal.SIGINT, self.shutdown)
@@ -120,7 +120,7 @@ class Argus:
             pid = os.fork()
             if pid > 0:
                 sys.exit(0)
-        except OSError, e:
+        except OSError as e:
             sys.stderr.write('fork #1 failed: {msg}\n'.format(msg = e.strerror))
             sys.exit(1)
 
@@ -130,7 +130,7 @@ class Argus:
             pid = os.fork()
             if pid > 0:
                 sys.exit(0)
-        except OSError, e:
+        except OSError as e:
             sys.stderr.write('fork #2 failed: {msg}\n'.format(msg = e.strerror))
             sys.exit(1)
 
