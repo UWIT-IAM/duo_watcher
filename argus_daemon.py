@@ -218,7 +218,7 @@ class Argus:
                                 alert = 5
 
                 response = res_fmt.format(seq = self.seq, alert = alert, status = status, threads = res_threads)
-		packet = response.encode("utf-8")
+                packet = response.encode("utf-8")
                 self.sock.sendto(packet, self.addr)
 
                 # Should we attempt to auto restart a dead thread??
@@ -280,8 +280,8 @@ class Argus:
                 print(fmt.format(ts = time.strftime('%y-%m-%d %H:%M:%S'), pid = os.getpid(), port = self.port))
                 sys.stdout.flush()
 
-		response = '{seq}P0Okay\n'.format(seq = self.seq)
-		packet = response.encode("utf-8")
+                response = '{seq}P0Okay\n'.format(seq = self.seq)
+                packet = response.encode("utf-8")
                 self.sock.sendto(packet, self.addr)
                 continue
 
@@ -300,7 +300,7 @@ class Argus:
         Sends a response back to the source of the most recent query
         """
         response = '{seq}{message}\n'.format(seq = self.seq, message = message)
-	packet = response.encode("utf-8")
+        packet = response.encode("utf-8")
         self.sock.sendto(packet, self.addr)
         print('{ts} {pid}: Response {msg}'.format(
             ts = time.strftime('%y-%m-%d %H:%M:%S'),
