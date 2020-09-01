@@ -20,6 +20,8 @@ getSeq = re.compile(r'(^[0-9 ]*)(.*)')
 res_fmt = '{seq}P{alert}{status}\n\n{threads}'
 thread_re = re.compile(r'^thread ([a-z]+) ([a-zA-Z_0-9]+)[ ]*([a-zA-Z_0-9]+)*[ ]*([a-zA-Z_0-9]+)*')
 
+class Argus_termination(Exception)
+    pass
 
 class Argus_thread:
     """
@@ -170,6 +172,8 @@ class Argus:
         while not self.terminate:
             try:
                 bytes, self.addr = self.sock.recvfrom(1024)
+            except Argus_termination:
+                continue
             except IOError as e:
                 if e.errno == errno.EINTR:
                     continue
@@ -319,6 +323,7 @@ class Argus:
         sys.stdout.flush()
 
         self.terminate = True
+        raise Argus_termination()
 
     def thread_cmd(self):
         """
