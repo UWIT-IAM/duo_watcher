@@ -148,7 +148,7 @@ class Argus:
         sys.stderr = open(self.logfile, 'a+')
 
         atexit.register(self.delpid)
-        pfp = file(self.pidfile, 'w+')
+        pfp = open(self.pidfile, 'w+')
         pfp.write('{pid}\n'.format(pid = os.getpid()))
         pfp.close()
 
