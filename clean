@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+#  Clean up any of our log files that are too old
+#
+
+TOP_LEVEL="/data/logs/duo"
+TOO_OLD=`date -d "370 days ago" "+%y%m%d"`
+
+SUB_DIRS="admin auth phone"
+
+export LANG=C
+
+for dir in ${SUB_DIRS}; do
+  cd ${TOP_LEVEL}/${dir} || exit 1
+  touch ${TOO_OLD}.clean || exit 1
+  list=`ls [0-9]* | awk '
+        {print $0}
+        /clean/ {exit}
+    '`
+  echo ============= `pwd`
+  case $list in
+    [\ 0-9]*\.clean)
+        rm -v $list;;
+    *)
+        echo NOT Removing $list;;
+  esac
+done
+
+size=`stat -c%s ~/clean_log` || exit 0
+if [ $size -gt 1000000 ]; then
+  mv ~/clean_log ~/clean_log.old
+fi
