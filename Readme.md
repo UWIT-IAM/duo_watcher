@@ -98,7 +98,7 @@ And, as a last step, how about a crontab entry to clean up any old log files:
   ssh ${loggerN}
   actas - iamduo
   crontab -e
-  # adding: 00 05  * * *  ~iamduo/duo_watcher/clean >> ~iamduo/duo_watcher/clean_log 2>&1
+  # adding: 00 01 * * * ~iamduo/duo_watcher/clean >> ~iamduo/clean_log 2>&1
 
 ```
 
@@ -160,16 +160,3 @@ individual threads:
      
   Mess: 
 ```
-
-### Clean up
-
-A cron job in /etc/cron.d/duo_watcher will eliminate log files that are more
-than a year old.  You can add an entry to iamduo's crontab with:
-
-```bash
-  # From a loggerN shell:
-  actas - iamduo
-  crontab -e
-  # Add: 00 01 * * * ~iamduo/duo_watcher/clean >> ~iamduo/clean_log 2>&1
-
-
