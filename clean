@@ -10,6 +10,8 @@ SUB_DIRS="admin auth phone"
 
 export LANG=C
 
+date "+%Y-%m-%d %H:%M ================= Cleaning"
+
 for dir in ${SUB_DIRS}; do
   cd ${TOP_LEVEL}/${dir} || exit 1
   touch ${TOO_OLD}.clean || exit 1
