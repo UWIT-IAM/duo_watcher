@@ -57,6 +57,8 @@ class LogWatcher:
         except RuntimeError as e:
             if e.args == ('Received 429 Too Many Requests',):
                 self.backoff = 1 + 2 * self.backoff
+                if self.backoff > 1800:
+                    self.backoff = 1800
                 if self.backoff > 10:
                     print('{ts} {pid}: Backing off to {bo} on {name}'.format(
                         ts = time.strftime('%y-%m-%d %H:%M:%S'),

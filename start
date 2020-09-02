@@ -17,6 +17,6 @@ else
   exit 1
 fi
 
-./collect.py -d
+./collect.py -d >> /data/logs/duo/log 2>&1
 
 exit $?
