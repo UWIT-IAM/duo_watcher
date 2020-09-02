@@ -20,7 +20,7 @@ getSeq = re.compile(r'(^[0-9 ]*)(.*)')
 res_fmt = '{seq}P{alert}{status}\n\n{threads}'
 thread_re = re.compile(r'^thread ([a-z]+) ([a-zA-Z_0-9]+)[ ]*([a-zA-Z_0-9]+)*[ ]*([a-zA-Z_0-9]+)*')
 
-class Argus_termination(Exception)
+class Argus_termination(Exception):
     pass
 
 class Argus_thread:
