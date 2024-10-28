@@ -34,7 +34,9 @@ You can grab this repo from github:
   pip install --upgrade -r requirements.txt
 ```
 
-By hook or by crook you'll need to manufacture the Duo credentials:
+Copy Duo credentials from Mosler e.g. `vm-prod/logger/duo_watcher/credentials`
+
+The credentials should be a JSON object with keys: `apihost`, `ikey` and `skey`.
 
 ```bash
   ssh ${loggerN}
@@ -128,7 +130,7 @@ Anybody can send the duo_watcher a "status" ding:
   Sent message 's' to 127.0.0.1 (2681).
   Recv message from   127.0.0.1 (2681) len=203.
   Got: P0Ready
-     
+
      auth: At 20:54:43 up to 20-08-31 20:52:32 count: 2 interval: 90
      admin: At 20:54:42 up to 20-08-31 18:46:57 count: 1 interval: 90
      phone: At 20:54:42 up to 20-08-31 20:54:03 count: 1 interval: 90
@@ -144,7 +146,7 @@ individual threads:
   Sent message 'help' to 127.0.0.1 (2681).
   Recv message from   127.0.0.1 (2681) len=342.
   Got: P3Help yourself
-     
+
      Commands are:
        clear: Clear status
        status: Report status
@@ -157,6 +159,6 @@ individual threads:
        auth: Duo authentication log watcher
        admin: Duo administrator log watcher
        phone: Duo telephony log watcher
-     
-  Mess: 
+
+  Mess:
 ```

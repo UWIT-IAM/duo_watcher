@@ -55,6 +55,11 @@ class LogWatcher:
                 params,
             )
         except RuntimeError as e:
+            print("{ts} fetch failure for {name}: {e}".format(
+                  ts = time.strftime('%y-%m-%d %H:%M:%S'),
+                  name = self.name,
+                  e=e,
+            ), flush=True)
             if e.args == ('Received 429 Too Many Requests',):
                 self.backoff = 1 + 2 * self.backoff
                 if self.backoff > 1800:
@@ -64,11 +69,21 @@ class LogWatcher:
                         ts = time.strftime('%y-%m-%d %H:%M:%S'),
                         pid = os.getpid(),
                         bo = self.backoff,
-                        name = self.name))
-                    sys.stdout.flush()
+                        name = self.name), flush=True)
                 return False
             raise
+        except Exception as e:
+            print("{ts} fetch failure for {name} of the non-runtime variety: {e}".format(
+                  ts = time.strftime('%y-%m-%d %H:%M:%S'),
+                  name = self.name,
+                  e=e,
+            ), flush=True)
+            raise
         else:
+            print("{ts} fetch success for {name}".format(
+              ts = time.strftime('%y-%m-%d %H:%M:%S'),
+              name = self.name,
+            ), flush=True)
             self.backoff = self.backoff / 2
 
         prev_ts = -1

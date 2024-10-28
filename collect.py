@@ -27,18 +27,22 @@ def looper(tp):
     sys.stdout.flush()
 
     while not tp.terminate.isSet():
-        while not tp.terminate.isSet():
-            tp.timestamp = time.time()
-            result = tp.handle.fetch()
-            tp.count = tp.count + 1
-            t0 = strftime('%H:%M:%S', localtime(tp.timestamp))
-            t1 = strftime('%y-%m-%d %H:%M:%S', localtime(tp.handle.state['timestamp']))
-            tp.status = 'At {wall} up to {log} count: {count} interval: {val}'.format(wall=t0, log=t1, count=tp.count, val=tp.interval)
-            if tp.handle.backoff > 0:
-                tp.status = tp.status + '+{bo}'.format(bo=tp.handle.backoff)
-            if not result:
-                break
-        tp.terminate.wait(tp.interval + tp.handle.backoff)
+        tp.timestamp = time.time()
+        result = tp.handle.fetch()
+        tp.count = tp.count + 1
+        t0 = strftime('%H:%M:%S', localtime(tp.timestamp))
+        t1 = strftime('%y-%m-%d %H:%M:%S', localtime(tp.handle.state['timestamp']))
+        tp.status = 'At {wall} up to {log} count: {count} interval: {val}'.format(wall=t0, log=t1, count=tp.count, val=tp.interval)
+        if tp.handle.backoff > 0:
+            tp.status = tp.status + '+{bo}'.format(bo=tp.handle.backoff)
+        wait_val = tp.interval + tp.handle.backoff
+        print("{ts} waiting {wait_val} seconds for next poll for {name}".format(
+              ts = time.strftime('%y-%m-%d %H:%M:%S'),
+              wait_val=wait_val,
+              name=tp.name,
+              ),
+        flush=True)
+        tp.terminate.wait(wait_val)
         if tp.maxcount > 0 and tp.count > tp.maxcount:
             break
 
@@ -47,8 +51,9 @@ def looper(tp):
     print('{ts} {pid}: Thread {name} terminating.'.format(
         ts = time.strftime('%y-%m-%d %H:%M:%S'),
         pid = os.getpid(),
-        name = tp.name))
-    sys.stdout.flush()
+        name = tp.name),
+        flush=True,
+    )
 
 #
 #  Initialize our thread descriptions
